@@ -2,3 +2,5 @@
 reflex==0.3.2
 firebase_admin==6.2.0
 bcrypt==4.0.1
+python-dotenv==1.0.0
+loguru==0.7.2

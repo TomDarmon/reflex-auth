@@ -2,3 +2,8 @@
 *.py[cod]
 .web
 __pycache__/
+
+
+.env
+
+secrets/

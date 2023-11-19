@@ -1,25 +1,36 @@
 """Welcome to Reflex! This file outlines the steps to create a basic app."""
 import reflex as rx
-from auth.state import State
+from auth.styles import default_styles
+from auth.state import FirebaseState, MainState
 
-
+@rx.page("/login")
 def login_page() -> rx.Component:
     return rx.container(
-        rx.input(placeholder="Username", on_change=State.set_username),
-        rx.input(placeholder="Password", type="password", on_change=State.set_password),
-        rx.button("Login", on_click=State.login_user, is_loading=State.loggin_button_waiting),
+        rx.input(placeholder="Email", on_change=MainState.set_email),
+        rx.password(placeholder="Password", on_change=MainState.set_password),
+        rx.hstack(
+            rx.button("Login", on_click=FirebaseState.login_user, is_loading=MainState.button_waiting),
+            rx.button("Create account", on_click=rx.redirect("/create-account")),
+        ),
         rx.cond(
-            State.logged_in,
-            rx.button("Welcome", on_click=rx.redirect("/welcome")),
-            rx.text("Wrong password"),
+            FirebaseState.something_went_wrong,
+            rx.alert("Something went wrong. Please try again."),
         ),
         )
 
+@rx.page("/create-account")
+def create_account_page() -> rx.Component:
+    return rx.container(
+        rx.input(placeholder="Email", on_change=MainState.set_email),
+        rx.password(placeholder="Password" , on_change=MainState.set_password),
+        rx.password(placeholder="Confirm password", on_change=MainState.set_password_confirm),
+        rx.button("Create account", on_click=FirebaseState.create_user, is_loading=MainState.button_waiting),
+        )
+
+@rx.page("/welcome", on_load = FirebaseState.require_login)
 def welcome_page() -> rx.Component:
     return rx.text("You are logged in")
 
 # Add state and pages to the app.
-app = rx.App()
-app.add_page(login_page, route="/")
-app.add_page(welcome_page, route="/welcome")
+app = rx.App(style = default_styles)
 app.compile()
